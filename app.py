@@ -1,39 +1,42 @@
 import streamlit as st
-import pickle   # <<< tambahkan ini
-import numpy as np
+import pandas as pd
+import pickle
 
-# --- Load trained model ---
-with open("GradientBoosting.pkl", "rb") as f:
+# --- Load model ---
+with open("model.pkl", "rb") as f:
     model = pickle.load(f)
 
-st.title("🚢 Titanic Survival Prediction")
+st.title("🚢 Prediksi Keselamatan Penumpang Titanic (Gradient Boosting)")
 
-# --- Input form ---
-pclass   = st.selectbox("Passenger Class", [1, 2, 3])
-sex      = st.selectbox("Sex", ["male", "female"])
-age      = st.number_input("Age", min_value=0, max_value=100, value=25)
-sibsp    = st.number_input("Siblings/Spouses Aboard", min_value=0, max_value=10, value=0)
-parch    = st.number_input("Parents/Children Aboard", min_value=0, max_value=10, value=0)
-fare     = st.number_input("Fare", min_value=0.0, value=50.0)
-embarked = st.selectbox("Port of Embarkation", ["C", "Q", "S"])
+# --- Input user ---
+pclass = st.selectbox("Pclass", [1,2,3])
+sex = st.selectbox("Sex", ["male", "female"])
+age = st.number_input("Age", min_value=0, max_value=100, value=25)
+sibsp = st.number_input("SibSp", min_value=0, max_value=10, value=0)
+parch = st.number_input("Parch", min_value=0, max_value=10, value=0)
+fare = st.number_input("Fare", min_value=0.0, value=32.0)
+embarked = st.selectbox("Embarked", ["C","Q","S"])
 
-# --- Encode input ---
-sex_map = {"male": 0, "female": 1}
-embarked_map = {"C": 0, "Q": 1, "S": 2}
+# --- Preprocessing input ---
+sex = 0 if sex == "male" else 1
+embarked = {"C":0, "Q":1, "S":2}[embarked]
 
-features = np.array([[pclass, sex_map[sex], age, sibsp, parch, fare, embarked_map[embarked]]])
+input_data = pd.DataFrame([{
+    "Pclass": pclass,
+    "Sex": sex,
+    "Age": age,
+    "SibSp": sibsp,
+    "Parch": parch,
+    "Fare": fare,
+    "Embarked": embarked
+}])
 
-# --- Predict ---
-if st.button("Predict"):
-    try:
-        prediction = model.predict(features)[0]
-        proba = model.predict_proba(features)[0]  # [prob_tidak_selamat, prob_selamat]
-        survival_chance = proba[1] * 100
+# --- Prediksi ---
+if st.button("Prediksi"):
+    prediction = model.predict(input_data)[0]
+    prob = model.predict_proba(input_data)[0][1] * 100
 
-        if prediction == 1:
-            st.success(f"✅ Penumpang diprediksi **SELAMAT** ({survival_chance:.2f}% kemungkinan)")
-        else:
-            st.error(f"❌ Penumpang diprediksi **TIDAK SELAMAT** ({survival_chance:.2f}% kemungkinan selamat)")
-    except Exception as e:
-        st.error(f"Terjadi error saat prediksi: {e}")
-
+    if prediction == 1:
+        st.success(f"✅ Penumpang kemungkinan SELAMAT ({prob:.2f}% confidence)")
+    else:
+        st.error(f"❌ Penumpang kemungkinan TIDAK selamat ({100-prob:.2f}% confidence)")
