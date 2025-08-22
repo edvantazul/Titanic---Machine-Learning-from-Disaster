@@ -6,7 +6,7 @@ import pickle
 with open("model.pkl", "rb") as f:
     model = pickle.load(f)
 
-st.title("🚢 Prediksi Keselamatan Penumpang Titanic (Gradient Boosting)")
+st.title("🚢 Prediksi Keselamatan Penumpang Titanic by Edvan")
 
 # --- Input user ---
 pclass = st.selectbox("Pclass", [1,2,3])
@@ -40,3 +40,4 @@ if st.button("Prediksi"):
         st.success(f"✅ Penumpang kemungkinan SELAMAT ({prob:.2f}% confidence)")
     else:
         st.error(f"❌ Penumpang kemungkinan TIDAK selamat ({100-prob:.2f}% confidence)")
+
