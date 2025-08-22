@@ -3,6 +3,7 @@ import streamlit.components.v1 as stc
 import pickle
 import numpy as np
 import plotly.graph_objects as go
+!pip install plotly
 
 # === Load Gradient Boosting Model ===
 with open("GradientBoosting.pkl", "rb") as file:
@@ -80,3 +81,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
