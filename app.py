@@ -1,13 +1,10 @@
 import streamlit as st
 import pickle
 import numpy as np
-from sklearn.ensemble import GradientBoostingClassifier
 
-model = GradientBoostingClassifier()
-model.fit(X_train, y_train)
-
-with open("GradientBoosting.pkl", "wb") as f:
-    pickle.dump(model, f)
+# --- Load model yang sudah dilatih ---
+with open("GradientBoosting.pkl", "rb") as f:
+    model = pickle.load(f)
 
 st.title("🚢 Titanic Survival Prediction App")
 
@@ -23,22 +20,17 @@ embarked = st.selectbox("Port of Embarkation", ["C", "Q", "S"])
 # --- One-hot encoding manual ---
 sex_female = 1 if sex == "female" else 0
 sex_male = 1 if sex == "male" else 0
-
 embarked_c = 1 if embarked == "C" else 0
 embarked_q = 1 if embarked == "Q" else 0
 embarked_s = 1 if embarked == "S" else 0
 
-# --- Pastikan urutan sesuai dengan training ---
+# --- Susun fitur sesuai training ---
 features = np.array([[pclass, sex_female, sex_male, embarked_c, embarked_q, embarked_s,
-                      age, sibsp, parch, fare]])
+                      age, sibsp, parch, fare]], dtype=float)
 
 # --- Prediksi ---
 if st.button("Predict"):
     try:
-        # Pastikan jadi numpy array 2D
-        features = np.array([[pclass, sex_female, sex_male, embarked_c, embarked_q, embarked_s,
-                              age, sibsp, parch, fare]], dtype=float)
-
         prediction = model.predict(features)[0]
         proba = model.predict_proba(features)[0]
 
@@ -48,4 +40,3 @@ if st.button("Predict"):
             st.error(f"❌ Penumpang diprediksi **TIDAK SELAMAT** dengan probabilitas {proba[0]*100:.2f}%")
     except Exception as e:
         st.error(f"Terjadi error: {e}")
-
