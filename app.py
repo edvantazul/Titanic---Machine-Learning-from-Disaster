@@ -32,6 +32,10 @@ features = np.array([[pclass, sex_female, sex_male, embarked_c, embarked_q, emba
 # --- Prediksi ---
 if st.button("Predict"):
     try:
+        # Pastikan jadi numpy array 2D
+        features = np.array([[pclass, sex_female, sex_male, embarked_c, embarked_q, embarked_s,
+                              age, sibsp, parch, fare]], dtype=float)
+
         prediction = model.predict(features)[0]
         proba = model.predict_proba(features)[0]
 
