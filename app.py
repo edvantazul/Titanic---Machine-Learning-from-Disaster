@@ -27,7 +27,7 @@ if choice == "Home":
         """
         ### Titanic Survival Prediction App  
         Aplikasi ini memprediksi kemungkinan seorang penumpang **selamat atau tidak**  
-        berdasarkan informasi yang tersedia di dataset Titanic.  
+        berdasarkan informasi yang tersedia di dataset Titanic. Ⓒ By Edvan Tazul. 
 
         #### Data Source  
         Kaggle: [Titanic - Machine Learning from Disaster](https://www.kaggle.com/c/titanic)  
@@ -66,3 +66,4 @@ elif choice == "Prediction App":
         # Progress bar survival probability
         st.write("📊 Survival Probability")
         st.progress(float(prob))
+
