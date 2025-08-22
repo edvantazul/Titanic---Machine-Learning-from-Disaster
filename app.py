@@ -1,10 +1,13 @@
 import streamlit as st
 import pickle
 import numpy as np
+from sklearn.ensemble import GradientBoostingClassifier
 
-# Load model
-with open("GradientBoosting.pkl", "rb") as file:
-    model = pickle.load(file)
+model = GradientBoostingClassifier()
+model.fit(X_train, y_train)
+
+with open("GradientBoosting.pkl", "wb") as f:
+    pickle.dump(model, f)
 
 st.title("🚢 Titanic Survival Prediction App")
 
@@ -45,3 +48,4 @@ if st.button("Predict"):
             st.error(f"❌ Penumpang diprediksi **TIDAK SELAMAT** dengan probabilitas {proba[0]*100:.2f}%")
     except Exception as e:
         st.error(f"Terjadi error: {e}")
+
