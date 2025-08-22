@@ -1,3 +1,7 @@
+import streamlit as st
+import pickle   # <<< tambahkan ini
+import numpy as np
+
 # --- Load trained model ---
 with open("GradientBoosting.pkl", "rb") as f:
     model = pickle.load(f)
@@ -32,3 +36,4 @@ if st.button("Predict"):
             st.error(f"❌ Penumpang diprediksi **TIDAK SELAMAT** ({survival_chance:.2f}% kemungkinan selamat)")
     except Exception as e:
         st.error(f"Terjadi error saat prediksi: {e}")
+
