@@ -1,59 +1,42 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 import pickle
-from sklearn.ensemble import GradientBoostingClassifier
 
-# === Load model yang sudah ditraining ===
-with open("gradient_model.pkl", "rb") as f:
+# --- Load model ---
+with open("model.pkl", "rb") as f:
     model = pickle.load(f)
 
-st.set_page_config(page_title="🚢 Titanic Survival Prediction", page_icon="🚢", layout="centered")
+st.title("🚢 Prediksi Keselamatan Penumpang Titanic (Gradient Boosting) by Edvan")
 
-# === Header ===
-st.title("🚢 Titanic Survival Prediction")
-st.markdown("Masukkan data penumpang untuk memprediksi kemungkinan **selamat atau tidak**.")
+# --- Input user ---
+pclass = st.selectbox("Pclass", [1,2,3])
+sex = st.selectbox("Sex", ["male", "female"])
+age = st.number_input("Age", min_value=0, max_value=100, value=25)
+sibsp = st.number_input("SibSp", min_value=0, max_value=10, value=0)
+parch = st.number_input("Parch", min_value=0, max_value=10, value=0)
+fare = st.number_input("Fare", min_value=0.0, value=32.0)
+embarked = st.selectbox("Embarked", ["C","Q","S"])
 
-# === Input Form ===
-with st.form("titanic_form"):
-    col1, col2 = st.columns(2)
+# --- Preprocessing input ---
+sex = 0 if sex == "male" else 1
+embarked = {"C":0, "Q":1, "S":2}[embarked]
 
-    with col1:
-        pclass = st.selectbox("Pclass", [1, 2, 3])
-        sex = st.selectbox("Sex", ["male", "female"])
-        age = st.slider("Age", 0, 80, 25)
-        sibsp = st.number_input("Siblings/Spouses Aboard", 0, 10, 0)
+input_data = pd.DataFrame([{
+    "Pclass": pclass,
+    "Sex": sex,
+    "Age": age,
+    "SibSp": sibsp,
+    "Parch": parch,
+    "Fare": fare,
+    "Embarked": embarked
+}])
 
-    with col2:
-        parch = st.number_input("Parents/Children Aboard", 0, 10, 0)
-        fare = st.number_input("Fare", 0.0, 600.0, 32.0)
-        embarked = st.selectbox("Embarked", ["C", "Q", "S"])
+# --- Prediksi ---
+if st.button("Prediksi"):
+    prediction = model.predict(input_data)[0]
+    prob = model.predict_proba(input_data)[0][1] * 100
 
-    submitted = st.form_submit_button("Predict 🎯")
-
-# === Preprocessing Input ===
-if submitted:
-    sex = 0 if sex == "male" else 1
-    embarked_map = {"C": 0, "Q": 1, "S": 2}
-    embarked = embarked_map[embarked]
-
-    features = np.array([[pclass, sex, age, sibsp, parch, fare, embarked]])
-
-    # === Predict ===
-    prediction = model.predict(features)[0]
-    proba = model.predict_proba(features)[0][1] * 100  # probabilitas selamat
-
-    # === Hasil ===
-    st.subheader("📊 Hasil Prediksi")
     if prediction == 1:
-        st.success(f"✅ Penumpang ini **DIPREDIKSI SELAMAT** ({proba:.2f}% kemungkinan).")
+        st.success(f"✅ Penumpang kemungkinan SELAMAT ({prob:.2f}% confidence)")
     else:
-        st.error(f"❌ Penumpang ini **TIDAK SELAMAT** ({proba:.2f}% kemungkinan selamat).")
-
-    # Tambah chart probabilitas
-    st.progress(int(proba))
-    st.markdown(f"Probabilitas Selamat: **{proba:.2f}%**")
-
-    st.bar_chart(pd.DataFrame({
-        "Probability": [100-proba, proba]
-    }, index=["Tidak Selamat", "Selamat"]))
+        st.error(f"❌ Penumpang kemungkinan TIDAK selamat ({100-prob:.2f}% confidence)")
